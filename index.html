@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnowRunner Night - La Ruta del Chigüire</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for rugged, heavy typography and modern UI -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0f15;
+        }
+        .rugged-font {
+            font-family: 'Black Ops One', cursive;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0f15;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #f97316;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ea580c;
+        }
+        /* Mud stripe accent lines */
+        .mud-stripe {
+            background: repeating-linear-gradient(
+                -45deg,
+                #f97316,
+                #f97316 10px,
+                #111827 10px,
+                #111827 20px
+            );
+        }
+    </style>
+</head>
+<body class="text-gray-100 overflow-x-hidden min-h-screen relative selection:bg-orange-500 selection:text-white">
+
+    <!-- Snow Canvas Background for atmosphere -->
+    <canvas id="snowCanvas" class="fixed top-0 left-0 w-full h-full pointer-events-none z-0"></canvas>
+
+    <div class="relative z-10 min-h-screen flex flex-col justify-between">
+        
+        <!-- HERO / HEADER SECTION -->
+        <header class="w-full min-h-[60vh] flex flex-col justify-center items-center text-center px-4 relative overflow-hidden border-b border-gray-900 bg-gradient-to-b from-gray-950/90 via-gray-950/70 to-transparent">
+            <div class="absolute inset-0 mud-stripe opacity-5 h-3 w-full top-0"></div>
+            
+            <div class="max-w-3xl mx-auto space-y-6 mt-12 mb-16">
+                <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold bg-orange-500/10 text-orange-400 border border-orange-500/30 uppercase tracking-widest animate-pulse">
+                    <i class="fa-solid fa-snowflake"></i> Convocatoria Oficial
+                </span>
+                
+                <h1 class="text-5xl md:text-8xl font-black rugged-font text-white tracking-wider uppercase leading-none drop-shadow-lg">
+                    SNOW<span class="text-orange-500">RUNNER</span>
+                </h1>
+                
+                <p class="text-lg md:text-2xl font-bold text-gray-300 max-w-2xl mx-auto">
+                    La Ruta del Chigüire organiza la jornada nocturna de fango y nieve.
+                </p>
+                
+                <div class="flex items-center justify-center gap-2 text-sm text-orange-400/90 font-mono tracking-wider">
+                    <i class="fa-solid fa-calendar-day"></i> ESTA NOCHE • 7:00 PM (19:00 HRS)
+                </div>
+
+                <div class="pt-6">
+                    <a href="#countdown-section" class="inline-flex items-center justify-center h-12 w-12 rounded-full border border-gray-800 text-gray-400 hover:text-orange-500 hover:border-orange-500/50 transition-all duration-300">
+                        <i class="fa-solid fa-arrow-down animate-bounce text-lg"></i>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- COUNTDOWN SECTION -->
+        <section id="countdown-section" class="max-w-4xl w-full mx-auto px-4 py-12 scroll-mt-6">
+            <div class="bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 p-8 rounded-3xl border border-gray-800 shadow-2xl relative overflow-hidden">
+                <div class="absolute -top-10 -right-10 opacity-[0.02] pointer-events-none">
+                    <i class="fa-solid fa-truck-monster text-[15rem]"></i>
+                </div>
+                
+                <div class="text-center space-y-2 mb-8">
+                    <h3 class="text-xs font-semibold text-orange-400 uppercase tracking-widest flex items-center justify-center gap-2">
+                        <span class="h-2 w-2 rounded-full bg-orange-500 animate-ping"></span>
+                        TIEMPO RESTANTE PARA EL ARRANQUE
+                    </h3>
+                    <p class="text-sm text-gray-400">Prepara motores, cabrestante y cadenas para nieve.</p>
+                </div>
+                
+                <!-- Countdown Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center max-w-2xl mx-auto">
+                    <div class="bg-black/55 p-5 rounded-2xl border border-gray-800/80 backdrop-blur-sm">
+                        <span id="timer-hours" class="block text-4xl md:text-6xl font-black rugged-font text-white">00</span>
+                        <span class="text-xs text-gray-500 uppercase tracking-wider font-semibold">Horas</span>
+                    </div>
+                    <div class="bg-black/55 p-5 rounded-2xl border border-gray-800/80 backdrop-blur-sm">
+                        <span id="timer-mins" class="block text-4xl md:text-6xl font-black rugged-font text-orange-500">00</span>
+                        <span class="text-xs text-gray-500 uppercase tracking-wider font-semibold">Minutos</span>
+                    </div>
+                    <div class="bg-black/55 p-5 rounded-2xl border border-gray-800/80 backdrop-blur-sm">
+                        <span id="timer-secs" class="block text-4xl md:text-6xl font-black rugged-font text-white">00</span>
+                        <span class="text-xs text-gray-500 uppercase tracking-wider font-semibold">Segundos</span>
+                    </div>
+                    <div class="bg-orange-500/5 p-5 rounded-2xl border border-orange-500/20 backdrop-blur-sm flex flex-col justify-center items-center">
+                        <span class="block text-xl md:text-2xl font-black rugged-font text-orange-400">HOY</span>
+                        <span class="text-xs text-orange-300/80 uppercase tracking-wider font-semibold">7:00 PM</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SQUAD SECTION -->
+        <section class="max-w-4xl w-full mx-auto px-4 py-12">
+            <div class="text-center mb-10 space-y-2">
+                <h2 class="text-3xl font-black rugged-font text-white uppercase tracking-wider">
+                    PILOTOS <span class="text-orange-500">CONVOCADOS</span>
+                </h2>
+                <p class="text-sm text-gray-400 max-w-lg mx-auto">
+                    La escuadra estelar de ingenieros y choferes pesados para la sesión de hoy.
+                </p>
+            </div>
+
+            <!-- Static Squad List (Vertical layout) -->
+            <div class="space-y-4 max-w-xl mx-auto">
+                <!-- Driver 1 -->
+                <div class="p-4 rounded-2xl border border-gray-800 bg-gray-950/40 backdrop-blur-sm flex items-center justify-between transition-all hover:border-orange-500/30">
+                    <div class="flex items-center gap-4">
+                        <div class="h-12 w-12 rounded-xl bg-gray-900 border border-gray-800 flex items-center justify-center text-xl shadow-md">
+                            🚛
+                        </div>
+                        <div>
+                            <h4 class="text-base font-bold text-white">Juan González</h4>
+                            <p class="text-xs text-orange-400">Piloto Principal / Rescate de Fango</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-mono bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/20 font-semibold uppercase tracking-wider">
+                        Convocado
+                    </span>
+                </div>
+
+                <!-- Driver 2 -->
+                <div class="p-4 rounded-2xl border border-gray-800 bg-gray-950/40 backdrop-blur-sm flex items-center justify-between transition-all hover:border-orange-500/30">
+                    <div class="flex items-center gap-4">
+                        <div class="h-12 w-12 rounded-xl bg-gray-900 border border-gray-800 flex items-center justify-center text-xl shadow-md">
+                            🚜
+                        </div>
+                        <div>
+                            <h4 class="text-base font-bold text-white">Leonardo Maican</h4>
+                            <p class="text-xs text-orange-400">Carga Pesada & Logística</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-mono bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/20 font-semibold uppercase tracking-wider">
+                        Convocado
+                    </span>
+                </div>
+
+                <!-- Driver 3 -->
+                <div class="p-4 rounded-2xl border border-gray-800 bg-gray-950/40 backdrop-blur-sm flex items-center justify-between transition-all hover:border-orange-500/30">
+                    <div class="flex items-center gap-4">
+                        <div class="h-12 w-12 rounded-xl bg-gray-900 border border-gray-800 flex items-center justify-center text-xl shadow-md">
+                            🚚
+                        </div>
+                        <div>
+                            <h4 class="text-base font-bold text-white">Kennedy Cardoza</h4>
+                            <p class="text-xs text-orange-400">Especialista en Alaska / Hielo</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-mono bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/20 font-semibold uppercase tracking-wider">
+                        Convocado
+                    </span>
+                </div>
+
+                <!-- Driver 4 -->
+                <div class="p-4 rounded-2xl border border-gray-800 bg-gray-950/40 backdrop-blur-sm flex items-center justify-between transition-all hover:border-orange-500/30">
+                    <div class="flex items-center gap-4">
+                        <div class="h-12 w-12 rounded-xl bg-gray-900 border border-gray-800 flex items-center justify-center text-xl shadow-md">
+                            🚙
+                        </div>
+                        <div>
+                            <h4 class="text-base font-bold text-white">Jesus Jimenez</h4>
+                            <p class="text-xs text-orange-400">Explorador & Reconocimiento</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-mono bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/20 font-semibold uppercase tracking-wider">
+                        Convocado
+                    </span>
+                </div>
+
+                <!-- Driver 5 -->
+                <div class="p-4 rounded-2xl border border-gray-800 bg-gray-950/40 backdrop-blur-sm flex items-center justify-between transition-all hover:border-orange-500/30">
+                    <div class="flex items-center gap-4">
+                        <div class="h-12 w-12 rounded-xl bg-gray-900 border border-gray-800 flex items-center justify-center text-xl shadow-md">
+                            🚛
+                        </div>
+                        <div>
+                            <h4 class="text-base font-bold text-white">Francesco Alterio</h4>
+                            <p class="text-xs text-orange-400">Ingeniería de Puentes & Grúas</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-mono bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/20 font-semibold uppercase tracking-wider">
+                        Convocado
+                    </span>
+                </div>
+            </div>
+        </section>
+
+        <!-- CHIGÜIRE QUOTE BANNER -->
+        <section class="max-w-4xl w-full mx-auto px-4 py-6">
+            <div class="bg-amber-950/10 border border-amber-500/20 p-6 rounded-3xl max-w-xl mx-auto flex gap-4 items-center backdrop-blur-sm">
+                <span class="text-4xl filter drop-shadow">🦫</span>
+                <div>
+                    <h4 class="text-sm font-bold text-amber-400 uppercase tracking-wider">El Sabio Chigüire dice:</h4>
+                    <p class="text-xs text-gray-300 italic mt-1 leading-relaxed">
+                        "El que corre en el fango se atasca solo; el que va despacio, entrega la carga intacta... ¡Traigan sus camiones más pesados esta noche!"
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- COORDINATES & CHANNELS SECTION -->
+        <section class="max-w-4xl w-full mx-auto px-4 py-12 space-y-6">
+            <div class="text-center mb-8 space-y-2">
+                <h2 class="text-3xl font-black rugged-font text-white uppercase tracking-wider">
+                    CENTRO DE <span class="text-orange-500">COORDINACIÓN</span>
+                </h2>
+                <p class="text-sm text-gray-400">Puntos de encuentro obligatorios para la expedición de hoy.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+                <!-- Discord Connection Details -->
+                <div class="bg-gray-950/60 border border-indigo-500/20 p-6 rounded-3xl flex flex-col justify-between backdrop-blur-sm hover:border-indigo-500/40 transition-colors">
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3">
+                            <div class="h-10 w-10 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+                                <i class="fa-brands fa-discord text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-base font-bold text-white">Canal de Voz Discord</h4>
+                                <p class="text-xs text-indigo-300 font-medium">Servidor Oficial</p>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-400 leading-relaxed">
+                            Estaremos reunidos en el canal oficial de **"La Ruta del Chigüire"**. Ten listo tu micrófono y el volumen del juego calibrado para el arranque cooperativo.
+                        </p>
+                    </div>
+                    <div class="pt-6">
+                        <div class="w-full text-center py-2.5 px-4 rounded-2xl text-xs font-bold bg-indigo-600/10 text-indigo-400 border border-indigo-500/30 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-microphone"></i> Sala: "La Ruta del Chigüire"
+                        </div>
+                    </div>
+                </div>
+
+                <!-- WhatsApp & External Coordination -->
+                <div class="bg-gray-950/60 border border-emerald-500/20 p-6 rounded-3xl flex flex-col justify-between backdrop-blur-sm hover:border-emerald-500/40 transition-colors">
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3">
+                            <div class="h-10 w-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                                <i class="fa-brands fa-whatsapp text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-base font-bold text-white">Coordinación por WhatsApp</h4>
+                                <p class="text-xs text-emerald-300 font-medium">Chat Conjunto</p>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-400 leading-relaxed">
+                            ¿Quieres unirte al grupo o avisar sobre tu llegada tarde? Deja un mensaje rápido en el grupo conjunto de WhatsApp para que estemos al tanto.
+                        </p>
+                    </div>
+                    
+                    <!-- Easy clipboard message section -->
+                    <div class="pt-6 space-y-2">
+                        <div class="bg-black/40 p-2.5 rounded-xl border border-emerald-900/30 flex justify-between items-center">
+                            <span class="text-[10px] text-gray-400 truncate pr-2 font-mono" id="whatsapp-draft">
+                                ¡Activo para el fango hoy a las 7:00 PM! 🦫🚛
+                            </span>
+                            <button onclick="copyDraftMessage()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 shrink-0" title="Copiar mensaje rápido">
+                                <i class="fa-solid fa-copy"></i> Copiar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="w-full bg-gray-950 py-8 px-4 border-t border-gray-900 text-center relative overflow-hidden mt-16">
+            <div class="max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-500">
+                <p>&copy; 2026 La Ruta del Chigüire Corp. Todos los camiones atascados son responsabilidad de su respectivo conductor.</p>
+                <div class="flex gap-4">
+                    <span class="hover:text-white transition-colors cursor-default">Reglas del Servidor</span>
+                    <span>&bull;</span>
+                    <span class="hover:text-white transition-colors cursor-default">Soporte Técnico de Barro</span>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+        // --- COUNTDOWN TIMER ---
+        function updateCountdown() {
+            const now = new Date();
+            const tonight = new Date();
+            tonight.setHours(19, 0, 0, 0); // Target at 7:00 PM
+
+            // If it is already past 7:00 PM today, target 7:00 PM tomorrow
+            if (now > tonight) {
+                tonight.setDate(tonight.getDate() + 1);
+            }
+
+            const diff = tonight - now;
+
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('timer-hours').innerText = String(hours).padStart(2, '0');
+            document.getElementById('timer-mins').innerText = String(minutes).padStart(2, '0');
+            document.getElementById('timer-secs').innerText = String(seconds).padStart(2, '0');
+        }
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        // --- SNOWFALL CANVAS EFFECT ---
+        const canvas = document.getElementById('snowCanvas');
+        const ctx = canvas.getContext('2d');
+        let flakes = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function createFlakes() {
+            const maxFlakes = 60;
+            flakes = [];
+            for (let i = 0; i < maxFlakes; i++) {
+                flakes.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    r: Math.random() * 2.5 + 1,
+                    d: Math.random() * maxFlakes,
+                    speed: Math.random() * 1.2 + 0.4
+                });
+            }
+        }
+        createFlakes();
+
+        function drawSnow() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.beginPath();
+            for (let i = 0; i < flakes.length; i++) {
+                const f = flakes[i];
+                ctx.moveTo(f.x, f.y);
+                ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2, true);
+
+                // Update coordinates
+                f.y += f.speed;
+                f.x += Math.sin(f.y / 25) * 0.4;
+
+                // Reset flake position when it falls off screen
+                if (f.y > canvas.height) {
+                    flakes[i] = {
+                        x: Math.random() * canvas.width,
+                        y: 0,
+                        r: f.r,
+                        d: f.d,
+                        speed: f.speed
+                    };
+                }
+            }
+            ctx.fill();
+            requestAnimationFrame(drawSnow);
+        }
+        drawSnow();
+
+        // --- COPY DRAFT FUNCTIONALITY ---
+        window.copyDraftMessage = function() {
+            const textToCopy = "¡Activo para el fango hoy a las 7:00 PM en La Ruta del Chigüire! 🦫🚛";
+            
+            // Safe copy to clipboard
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = textToCopy;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+
+            // Give a quick visual feedback in the button
+            const btn = event.currentTarget;
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-check text-emerald-400"></i> Copiado`;
+            btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-500');
+            btn.classList.add('bg-emerald-800');
+            
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.classList.remove('bg-emerald-800');
+                btn.classList.add('bg-emerald-600', 'hover:bg-emerald-500');
+            }, 2500);
+        };
+    </script>
+</body>
+</html>
